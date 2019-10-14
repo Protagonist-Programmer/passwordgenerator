@@ -1,5 +1,5 @@
 from random import randint, seed
-from time import time_ns
+from os import urandom
 
 ###############################################
 #              RULES BY DEFAULT               #
@@ -61,7 +61,7 @@ class PasswordGenerator:
         """If rules is [] It is use rules by default. Rules must be iterable, example:  (boolOrdFunctionChar, ...)"""
         self.ASCII = (32, 126)
         self.rules = list(rules) or DefaultRules.fecthDefaultRules()
-        self.seed_generator = lambda: time_ns%10**10
+        self.seed_generator = lambda: urandom(32)
 
     def checkPassword(self, password: list):
         """Return True if all rule is accept"""
@@ -73,7 +73,7 @@ class PasswordGenerator:
                 return False
         return True
 
-    def fetchPassword(self, lenth: int, library: (tuple, list, set), use_ascii=True, limit_tries=2**31):
+    def fetchPassword(self, lenth: int, library: (tuple, list, set), use_ascii=True, limit_tries=2**32):
         """Return password which follow rules. Library must be empty tuple, list or be tuple, list which contain group of two integers: ((start, stop), ...)"""
         if (not use_ascii) and (not library):
             raise ValueError("PasswwordGenerator cannot fetch without ASCII and library")
@@ -103,13 +103,15 @@ class PasswordGenerator:
         """Convert [int, int...] into \"chr(int)chr(int)...\""""
         return "".join([chr(index) for index in password])
 
-    def setSeedGenerator(self, func):
-        """By default used time.time_ns % 10**10"""
-        self.seed_generator = func
-
-    def updateRules(self, rules: (tuple, list, set)):
+    def appendRules(self, rules: (tuple, list, set)):
         """Iterable must content bool functions: (boolOrdFunctionChar, ...)"""
         self.rules.extend(list(rules))
+
+    def removeRules(self, rules: (tuple, list, set)):
+        """Iterable must content bool functions: (boolOrdFunctionChar, ...)"""
+        for rule in rules:
+            if rule in self.rules:
+                self.rules.remove(rule)
 
 #                                             #
 ###############################################
