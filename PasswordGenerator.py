@@ -1,12 +1,13 @@
 from random import randint, seed
 from os import urandom
 
+
 ################################################################################
 #                              RULES BY DEFAULT                                #
 
 class DefaultRules:
     """Rules by default"""
-    
+
     @classmethod
     def boolOrdSpecSymbolFirstGroup(cls, char):
         """[' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/']"""
@@ -35,7 +36,7 @@ class DefaultRules:
     @classmethod
     def boolOrdLower(cls, char):
         """[a-z]"""
-        return 96 < char <123
+        return 96 < char < 123
 
     @classmethod
     def boolOrdSpecSymbolFourthGroup(cls, char):
@@ -43,7 +44,7 @@ class DefaultRules:
         return 122 < char < 127
 
     @classmethod
-    def fecthDefaultRules(cls):
+    def fetchDefaultRules(cls):
         return [DefaultRules.boolOrdUpper, DefaultRules.boolOrdLower, DefaultRules.boolOrdDigit,
                 DefaultRules.boolOrdSpecSymbolFirstGroup, DefaultRules.boolOrdSpecSymbolSecondGroup,
                 DefaultRules.boolOrdSpecSymbolThirdGroup, DefaultRules.boolOrdSpecSymbolFourthGroup]
@@ -57,10 +58,11 @@ class DefaultRules:
 
 class PasswordGenerator:
     """Return PasswordGenerator object"""
+
     def __init__(self, rules: (tuple, list, set)):
         """If rules is [] It is use rules by default. Rules must be iterable, example:  (boolOrdFunctionChar, ...)"""
         self.ASCII = (32, 126)
-        self.rules = list(rules) or DefaultRules.fecthDefaultRules()
+        self.rules = list(rules) or DefaultRules.fetchDefaultRules()
         self.seed_generator = lambda: urandom(32)
 
     def checkPassword(self, password: list):
@@ -73,10 +75,10 @@ class PasswordGenerator:
                 return False
         return True
 
-    def fetchPassword(self, lenth: int, library: (tuple, list, set), use_ascii=True, limit_tries=2**32):
+    def fetchPassword(self, length: int, library: (tuple, list, set), use_ascii=True, limit_tries=2 ** 32):
         """Return password which follow rules. Library must be empty tuple, list or be tuple, list which contain group of two integers: ((start, stop), ...)"""
         if (not use_ascii) and (not library):
-            raise ValueError("PasswwordGenerator cannot fetch without ASCII and library")
+            raise ValueError("PasswordGenerator cannot fetch without ASCII and library")
 
         library = list(library)
         if use_ascii:
@@ -84,22 +86,24 @@ class PasswordGenerator:
 
         for _ in range(abs(limit_tries)):
             seed(self.seed_generator())
-            password = self.generatePassword(lenth, library)
+            password = self.generatePassword(length, library)
             if self.checkPassword(password):
                 return password
 
-    def generatePassword(self, lenth: int, library: (tuple, list)):
+    @staticmethod
+    def generatePassword(length: int, library: (tuple, list)):
         """Simple generator from group of two integers: ((start, stop), ...)"""
         password = []
 
-        for _ in range(lenth):
+        for _ in range(length):
             start, stop = library[randint(0, (len(library) - 1))]
             char = randint(start, stop)
             password.append(char)
 
         return password
 
-    def prettyPrint(self, password):
+    @staticmethod
+    def prettyPrint(password):
         """Convert [int, int...] into \"chr(int)chr(int)...\""""
         return "".join([chr(index) for index in password])
 
@@ -136,13 +140,13 @@ class CustomCharactersSequence:
                 self.match = False
                 return True
 
-        if self.match and (not (next_char == char)):
-                self.iterator = iter(self.sequence)
-                self.match = False
-                self.__call__(char)
+        if self.match and not (next_char == char):
+            self.iterator = iter(self.sequence)
+            self.match = False
+            self(char)
 
-        elif (not self.match):
-            if (next_char == char):
+        elif not self.match:
+            if next_char == char:
                 self.match = True
             else:
                 self.iterator = iter(self.sequence)
