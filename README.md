@@ -44,7 +44,7 @@ generator.seed_generator = func # Where func is something like time.time_ns%10**
 ## DefaultRules
 Default rules is required for creating the most strongly password. You can do not use rules, or add yours rules.
 
-- `fecthDefaultRules()` - simple way to fetch all rules (you can remove some rules by your wish)
+- `fetchDefaultRules()` - simple way to fetch all rules (you can remove some rules by your wish)
 
 - `boolOrdSpecSymbolFirstGroup(char: int) -> bool`  `[' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/']` - symbols from 32 to 47 position
 
