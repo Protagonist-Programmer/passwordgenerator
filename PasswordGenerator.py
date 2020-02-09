@@ -1,8 +1,8 @@
 from random import randint, seed
 from os import urandom
 
-###############################################
-#              RULES BY DEFAULT               #
+################################################################################
+#                              RULES BY DEFAULT                                #
 
 class DefaultRules:
     """Rules by default"""
@@ -48,12 +48,12 @@ class DefaultRules:
                 DefaultRules.boolOrdSpecSymbolFirstGroup, DefaultRules.boolOrdSpecSymbolSecondGroup,
                 DefaultRules.boolOrdSpecSymbolThirdGroup, DefaultRules.boolOrdSpecSymbolFourthGroup]
 
-#                                             #
-###############################################
+#                                                                              #
+################################################################################
 
 
-###############################################
-#             PASSWORD GENERATOR              #
+################################################################################
+#                             PASSWORD GENERATOR                               #
 
 class PasswordGenerator:
     """Return PasswordGenerator object"""
@@ -113,12 +113,12 @@ class PasswordGenerator:
             if rule in self.rules:
                 self.rules.remove(rule)
 
-#                                             #
-###############################################
+#                                                                              #
+################################################################################
 
 
-###############################################
-#         CUSTOM CHARACTERS SEQUENCE          #
+################################################################################
+#                         CUSTOM CHARACTERS SEQUENCE                           #
 
 class CustomCharactersSequence:
     def __init__(self, sequence: str):
@@ -147,5 +147,5 @@ class CustomCharactersSequence:
             else:
                 self.iterator = iter(self.sequence)
 
-#                                             #
-###############################################
+#                                                                              #
+################################################################################
