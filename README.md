@@ -2,7 +2,7 @@
 Module for simple password generation with custom rules.
 
 ## Password Generator
-### Initialisation
+### Initialization
 PasswordGenerator await for list of rules. Rules must await `ord(char)` and return boolean value.
 This is some of ways to make generator.
 ```
