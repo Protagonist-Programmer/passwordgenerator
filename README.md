@@ -1,5 +1,5 @@
 # Password Generator (Python 3)
-Module for simple password generation with custom rules
+Module for simple password generation with custom rules.
 
 ## Password Generator
 ### Initialisation
@@ -13,21 +13,21 @@ generator = PasswordGenerator(dict()) # Only keys
 generator = PasswordGenerator(set())
 generator = PasswordGenerator(frozenset())
 
-generator = PasswordGenerator((boolFirstRule, boolFirstSecondRule, ...)) # Rewrited rules by default
+generator = PasswordGenerator((boolFirstRule, boolSecondRule, ...)) # Rewrite rules by default
 ```
 
 ### `appendRules` and `removeRules`
 Be careful with append wrong function! If function would not return true value, generator try to make another password. And futher before 2**32 times to tries by default
 ```
 # Some types which supports transition into list
-generator.appendRules((boolFirstRule, boolFirstSecondRule, ...))
+generator.appendRules((boolFirstRule, boolSecondRule, ...))
 
  # Any types with iteration support
-generator.removedRules((boolFirstRule, boolFirstSecondRule, ...))
+generator.removedRules((boolFirstRule, boolSecondRule, ...))
 ```
 
 ### `generatePassword`
-Function is build list of chars which located between `[start; stop]` of randrom group of library. Generated password without used rules and `random.seed()`. Seed is use in `fetchPassword`
+Function is build list of chars which located between `[start; stop]` of randrom group of library. Generate password without used rules and `random.seed()`. Seed is used in `fetchPassword`
 ```
 library = [(start1, stop1), (start2, stop2), ...] # Looks like a dict items
 generator.generatePassword(lenth, library)
