@@ -54,7 +54,7 @@ Default rules is required for creating the most strongly password. You can do no
 
 - `boolOrdUpper(char: int) -> bool` - symbols A-Z from 65 to 90 position
 
-- `boolOrdSpecSymbolThirdGroup(char: int) -> bool`  `['[', '\\', ']', '^', '_', '\`',]` - symbols from 91 to 96 position
+- `boolOrdSpecSymbolThirdGroup(char: int) -> bool`  `['[', '\', ']', '^', '_', '\`',]` - symbols from 91 to 96 position
 
 - `boolOrdLower(char: int) -> bool` - symbols a-z from 97 to 122 position
 
