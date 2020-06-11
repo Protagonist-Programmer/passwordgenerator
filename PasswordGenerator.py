@@ -1,4 +1,4 @@
-from random import randint, seed
+from random import choice, randint, seed
 from os import urandom
 
 
@@ -6,48 +6,30 @@ from os import urandom
 #                              RULES BY DEFAULT                                #
 
 class DefaultRules:
-    """Rules by default"""
+    """Include ASCII groups for randint"""
 
-    @classmethod
-    def boolOrdSpecSymbolFirstGroup(cls, char):
-        """[' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/']"""
-        return 31 < char < 48
+    ASCII_GROUPS = (
+        (32, 47),    # [' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/']
+        (48, 57),    # [0-9]
+        (58, 64),    # [':', ';', '<', '=', '>', '?', '@']
+        (65, 90),    # [A-Z]
+        (91, 96),    # ['[', '\\', ']', '^', '_', '`',]
+        (97, 122),   # [a-z]
+        (123, 126),  # ['{', '|', '}', '~']
+    )
+    FIGURES = ASCII_GROUPS[1]
+    LOWER_EN = ASCII_GROUPS[5]
+    UPPER_EN = ASCII_GROUPS[3]
 
-    @classmethod
-    def boolOrdDigit(cls, char):
-        """[0-9]"""
-        return 47 < char < 58
+    @staticmethod
+    def from_sequence(sequence: (str, list, tuple)):
+        """Return bool function from sequence of characters from list of integers"""
+        sequence = list(sequence)
 
-    @classmethod
-    def boolOrdSpecSymbolSecondGroup(cls, char):
-        """[':', ';', '<', '=', '>', '?', '@']"""
-        return 57 < char < 65
+        def closure(password: list) -> bool:
+            return "".join(sequence) in PasswordGenerator.to_str(password)
 
-    @classmethod
-    def boolOrdUpper(cls, char):
-        """[A-Z]"""
-        return 64 < char < 91
-
-    @classmethod
-    def boolOrdSpecSymbolThirdGroup(cls, char):
-        """['[', '\\', ']', '^', '_', '`',]"""
-        return 90 < char < 97
-
-    @classmethod
-    def boolOrdLower(cls, char):
-        """[a-z]"""
-        return 96 < char < 123
-
-    @classmethod
-    def boolOrdSpecSymbolFourthGroup(cls, char):
-        """['{', '|', '}', '~']"""
-        return 122 < char < 127
-
-    @classmethod
-    def fetchDefaultRules(cls):
-        return [DefaultRules.boolOrdUpper, DefaultRules.boolOrdLower, DefaultRules.boolOrdDigit,
-                DefaultRules.boolOrdSpecSymbolFirstGroup, DefaultRules.boolOrdSpecSymbolSecondGroup,
-                DefaultRules.boolOrdSpecSymbolThirdGroup, DefaultRules.boolOrdSpecSymbolFourthGroup]
+        return closure
 
 #                                                                              #
 ################################################################################
@@ -57,99 +39,51 @@ class DefaultRules:
 #                             PASSWORD GENERATOR                               #
 
 class PasswordGenerator:
-    """Return PasswordGenerator object"""
+    ASCII = (32, 126)
 
     def __init__(self, rules: (tuple, list, set)):
-        """If rules is [] It is use rules by default. Rules must be iterable, example:  (boolOrdFunctionChar, ...)"""
-        self.ASCII = (32, 126)
-        self.rules = list(rules) or DefaultRules.fetchDefaultRules()
+        """Use the rules for each password. If the rules is empty it will not use rules"""
+        self.rules = list(rules)
         self.seed_generator = lambda: urandom(32)
 
-    def checkPassword(self, password: list):
-        """Return True if all rule is accept"""
-        for rule in self.rules:
-            for char in password:
-                if rule(char):
-                    break
-            else:
-                return False
-        return True
+    def append_rules(self, rules: (tuple, list, set)):
+        """Iterable must content bool callable objects"""
+        self.rules.extend(list(rules))
 
-    def fetchPassword(self, length: int, library: (tuple, list, set), use_ascii=True, limit_tries=2 ** 32):
-        """Return password which follow rules. Library must be empty tuple, list or be tuple, list which contain group of two integers: ((start, stop), ...)"""
-        if (not use_ascii) and (not library):
-            raise ValueError("PasswordGenerator cannot fetch without ASCII and library")
+    def check_password(self, password: list) -> bool:
+        """Return True if all rules accepted"""
+        return all(rule(password) for rule in self.rules)
+
+    def fetch_password(self, length: int, library: (tuple, list, set), use_ascii=True, limit_tries=2 ** 32) -> list:
+        """Return password which follow rules. Library must be empty tuple, list or tuple, which contains group of
+        two integers: ((start, stop), ...)"""
+        if not (use_ascii or library):
+            raise ValueError("Cannot generate password without ASCII and library")
 
         library = list(library)
         if use_ascii:
-            library.append(self.ASCII)
+            library.append(PasswordGenerator.ASCII)
 
         for _ in range(abs(limit_tries)):
             seed(self.seed_generator())
-            password = self.generatePassword(length, library)
-            if self.checkPassword(password):
+            password = self.generate_password(length, library)
+            if self.check_password(password):
                 return password
 
     @staticmethod
-    def generatePassword(length: int, library: (tuple, list)):
+    def generate_password(length: int, library: (tuple, list)):
         """Simple generator from group of two integers: ((start, stop), ...)"""
-        password = []
-
-        for _ in range(length):
-            start, stop = library[randint(0, (len(library) - 1))]
-            char = randint(start, stop)
-            password.append(char)
-
-        return password
+        return [randint(*choice(library)) for _ in range(length)]
 
     @staticmethod
-    def prettyPrint(password):
+    def to_str(password: list) -> str:
         """Convert [int, int...] into \"chr(int)chr(int)...\""""
         return "".join([chr(index) for index in password])
 
-    def appendRules(self, rules: (tuple, list, set)):
-        """Iterable must content bool functions: (boolOrdFunctionChar, ...)"""
-        self.rules.extend(list(rules))
-
-    def removeRules(self, rules: (tuple, list, set)):
-        """Iterable must content bool functions: (boolOrdFunctionChar, ...)"""
-        for rule in rules:
-            if rule in self.rules:
-                self.rules.remove(rule)
-
-#                                                                              #
-################################################################################
-
-
-################################################################################
-#                         CUSTOM CHARACTERS SEQUENCE                           #
-
-class CustomCharactersSequence:
-    def __init__(self, sequence: str):
-        """Example of rule which require sequence in password. You can imagine yours custom rule in such style"""
-        self.sequence = tuple(ord(char) for char in sequence)
-        self.iterator = iter(sequence)
-        self.match = False
-
-    def __call__(self, char):
-        try:
-            next_char = next(self.iterator)
-        except StopIteration:
-            self.iterator = iter(self.sequence)
-            if self.match:
-                self.match = False
-                return True
-
-        if self.match and not (next_char == char):
-            self.iterator = iter(self.sequence)
-            self.match = False
-            self(char)
-
-        elif not self.match:
-            if next_char == char:
-                self.match = True
-            else:
-                self.iterator = iter(self.sequence)
+    def remove_rules(self, rules: (tuple, list, set)):
+        """Iterable must content bool callable objects"""
+        tuple(self.rules.remove(destrule) for destrule in list(self.rules) for rule in rules
+              if rule.__code__ == destrule.__code__)  # By some reason these function may have different hashes
 
 #                                                                              #
 ################################################################################
